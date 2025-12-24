@@ -32,7 +32,7 @@ def query_handler(question):
       query = queries[index]
       # 查询数据库
       db = get_db()
-      with db.session(database="neo4j") as session:
+      with db.session() as session:
         result = session.run(query, val=val)
         rows = result.values('name')
         rows = [row[0] for row in rows]
