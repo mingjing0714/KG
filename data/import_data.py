@@ -17,7 +17,7 @@ RELATION_FILE = os.path.join(DATA_DIR, 'relation.csv')
 # Neo4j 连接配置
 NEO4J_URI = "bolt://localhost:7687"
 NEO4J_USER = "neo4j"
-NEO4J_PASSWORD = "Aqweasd123."
+NEO4J_PASSWORD = "Song0714."
 driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
 
@@ -28,19 +28,19 @@ def clear_db(tx):
 def create_constraints(tx):
     # 分别尝试创建约束，如果已存在则忽略错误
     try:
-        tx.run("CREATE CONSTRAINT ON (p:作品) ASSERT p.name IS UNIQUE")
+        tx.run("CREATE CONSTRAINT IF NOT EXISTS FOR (p:作品) REQUIRE p.name IS UNIQUE")
     except Exception as e:
         if "already exists" not in str(e) and "ConstraintAlreadyExists" not in str(e):
             raise e
 
     try:
-        tx.run("CREATE CONSTRAINT ON (a:专辑) ASSERT a.name IS UNIQUE")
+        tx.run("CREATE CONSTRAINT IF NOT EXISTS FOR (a:专辑) REQUIRE a.name IS UNIQUE")
     except Exception as e:
         if "already exists" not in str(e) and "ConstraintAlreadyExists" not in str(e):
             raise e
 
     try:
-        tx.run("CREATE CONSTRAINT ON (p:人物) ASSERT p.name IS UNIQUE")
+        tx.run("CREATE CONSTRAINT IF NOT EXISTS FOR (p:人物) REQUIRE p.name IS UNIQUE")
     except Exception as e:
         if "already exists" not in str(e) and "ConstraintAlreadyExists" not in str(e):
             raise e
@@ -49,10 +49,10 @@ def create_constraints(tx):
 def load_nodes():
     with driver.session() as session:
         # 清空旧数据（可选）
-        # session.write_transaction(clear_db)
+        # session.execute_write(clear_db)
 
         # 创建约束
-        session.write_transaction(create_constraints)
+        session.execute_write(create_constraints)
 
         # 加载 专辑
         with open('专辑.csv', 'r', encoding='utf-8') as f:
@@ -124,5 +124,5 @@ if __name__ == "__main__":
     load_nodes()
     print("正在加载关系...")
     load_relations()
-    print("✅ 数据导入完成！")
+    print(" 数据导入完成！")
     driver.close()
